@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "pydantic-settings>=2.10.1",
+    "textual-dev>=1.7.0",
     "textual[syntax]>=4.0.0",
     "xdg-base-dirs>=6.0.2",
 ]
