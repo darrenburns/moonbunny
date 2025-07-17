@@ -13,7 +13,7 @@ class Moonbunny(App[None], inherit_bindings=False):
 
     def compose(self) -> ComposeResult:
         yield Header()
-        yield Footer()
+        yield Footer(show_command_palette=False)
 
 
 def main() -> None:
