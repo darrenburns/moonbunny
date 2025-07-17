@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 import shlex
 from typing import Self
 
+from rich.repr import Result
 from textual.message import Message
 
 
@@ -23,6 +24,10 @@ class GitCommand(Message):
     @property
     def command(self) -> list[str]:
         return ["git", self.command_name] + self._args
+
+    def __rich_repr__(self):
+        yield "command_name", self.command_name
+        yield "args", self._args
 
 
 @dataclass
