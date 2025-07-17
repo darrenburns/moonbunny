@@ -1,0 +1,16 @@
+[project]
+name = "moonbunny"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pydantic-settings>=2.10.1",
+    "textual[syntax]>=4.0.0",
+]
+
+[tool.uv]
+package = true
+
+[project.scripts]
+moonbunny = "main:main"
