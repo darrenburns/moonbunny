@@ -13,4 +13,4 @@ dependencies = [
 package = true
 
 [project.scripts]
-moonbunny = "main:main"
+moonbunny = "moonbunny.main:main"
