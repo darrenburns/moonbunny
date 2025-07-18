@@ -1,15 +1,45 @@
 from pathlib import Path
 from typing import Any
-from textual import on, log, work
+from textual import getters, on, log, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
+from textual.css.query import NoMatches
 from textual.screen import Screen
 from textual.widgets import Footer
 
 from moonbunny.git import GitCommandResult, GitRunner
 from moonbunny.messages import GitCommand
 from moonbunny.settings import Settings
+from moonbunny.widgets.files_panel import FilesPanel
 from moonbunny.widgets.status_bar import StatusBar
+
+
+class Home(Screen[None]):
+    BINDINGS = [
+        Binding(key="s", action="git_status", description="status"),
+        Binding(key="b", action="check_branch", description="branch"),
+    ]
+
+    files_panel = getters.child_by_id("files-panel", FilesPanel)
+
+    def compose(self) -> ComposeResult:
+        yield StatusBar()
+        yield Footer(show_command_palette=False)
+        yield FilesPanel(id="files-panel")
+
+    def on_mount(self) -> None:
+        self.action_git_status()
+
+    def action_git_status(self) -> None:
+        self.post_message(GitCommand.with_args("status", "--porcelain=v2"))
+
+    def action_check_branch(self) -> None:
+        # git rev-parse --symbolic-full-name --abbrev-ref HEAD
+        self.post_message(
+            GitCommand.with_args(
+                "rev-parse", "--symbolic-full-name", "--abbrev-ref", "HEAD"
+            )
+        )
 
 
 class Moonbunny(App[None], inherit_bindings=False):
@@ -43,7 +73,8 @@ class Moonbunny(App[None], inherit_bindings=False):
         self.watch_git_files()
 
     def get_default_screen(self) -> Screen[None]:
-        return Home()
+        self.home_screen = Home()
+        return self.home_screen
 
     @on(GitCommand)
     def handle_git_command(self, command: GitCommand) -> None:
@@ -53,6 +84,16 @@ class Moonbunny(App[None], inherit_bindings=False):
     @on(GitCommandResult)
     def handle_git_command_result(self, result: GitCommandResult) -> None:
         log.debug(result)
+        log.debug(result.command.command_name)
+
+        match result.command.command_name:
+            case "status":
+                output = result.stdout.decode("utf-8")
+                lines = output.splitlines()
+                lines = [line.split()[-1] for line in lines]
+                self.home_screen.files_panel.set_files(lines)
+            case _:
+                pass
 
     @work(exclusive=True, group="git-watcher")
     async def watch_git_files(self) -> None:
@@ -63,28 +104,6 @@ class Moonbunny(App[None], inherit_bindings=False):
         async for changes in awatch(Path.cwd()):
             for change_type, file_path in changes:
                 log.debug(f"Git file changed: {file_path}")
-
-
-class Home(Screen[None]):
-    BINDINGS = [
-        Binding(key="s", action="git_status", description="status"),
-        Binding(key="b", action="check_branch", description="branch"),
-    ]
-
-    def compose(self) -> ComposeResult:
-        yield StatusBar()
-        yield Footer(show_command_palette=False)
-
-    def action_git_status(self) -> None:
-        self.post_message(GitCommand.with_args("status", "--porcelain=v2"))
-
-    def action_check_branch(self) -> None:
-        # git rev-parse --symbolic-full-name --abbrev-ref HEAD
-        self.post_message(
-            GitCommand.with_args(
-                "rev-parse", "--symbolic-full-name", "--abbrev-ref", "HEAD"
-            )
-        )
 
 
 def main() -> None:

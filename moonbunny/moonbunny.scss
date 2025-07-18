@@ -1,3 +1,11 @@
 StatusBar {
     background: $surface;
 }
+
+FilesPanel {
+    background: red;
+    height: 1fr;
+    & OptionList {
+        height: 6;
+    }
+}
