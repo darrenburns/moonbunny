@@ -1,11 +1,31 @@
 StatusBar {
     background: $surface;
+    dock: bottom;
+    margin-bottom: 1;
+    padding: 0 1;
 }
 
-FilesPanel {
-    background: red;
-    height: 1fr;
-    & OptionList {
-        height: 6;
+Home {
+    layout: horizontal;
+
+    FilesPanel {
+        background: $surface;
+        height: 1fr;
+        width: 16;
+        dock: left;
+        & #files-panel-option-list {
+            height: 6;
+            background: $surface;
+        }
+        & #files-panel-label {
+            text-style: bold;
+        }
     }
+
+    DiffPanel {
+        background: $surface;
+        width: 1fr;
+    }
+    
 }
+

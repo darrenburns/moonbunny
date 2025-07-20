@@ -8,12 +8,14 @@ from textual.widgets import Footer
 
 from moonbunny.git import (
     GitCommandResult,
+    GitRequestAllFileDiffs,
     GitRequestCurrentBranchName,
     GitRequestFileStatus,
     GitTaskRunner,
 )
 from moonbunny.messages import GitCommand
 from moonbunny.settings import Settings
+from moonbunny.widgets.diff_panel import DiffPanel
 from moonbunny.widgets.files_panel import FilesPanel
 from moonbunny.widgets.status_bar import StatusBar
 
@@ -22,10 +24,12 @@ class Home(Screen[None]):
     BINDINGS = [
         Binding(key="s", action="git_status", description="status"),
         Binding(key="b", action="check_branch", description="branch"),
+        Binding(key="d", action="check_all_file_diffs", description="diff all"),
     ]
 
     files_panel = getters.child_by_id("files-panel", FilesPanel)
     status_bar = getters.child_by_id("status-bar", StatusBar)
+    diff_panel = getters.child_by_id("diff-panel", DiffPanel)
 
     def __init__(self, git: GitTaskRunner, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -33,17 +37,23 @@ class Home(Screen[None]):
 
     def compose(self) -> ComposeResult:
         yield StatusBar(id="status-bar")
-        yield Footer(show_command_palette=False)
         yield FilesPanel(id="files-panel")
+        yield DiffPanel(id="diff-panel")
+        yield Footer(show_command_palette=False)
 
     def on_mount(self) -> None:
-        self.action_git_status()
+        self.git.enqueue_request_file_status()
+        self.git.enqueue_request_branch_name()
+        self.git.enqueue_request_all_file_diffs()
 
     def action_git_status(self) -> None:
         self.git.enqueue_request_file_status()
 
     def action_check_branch(self) -> None:
         self.git.enqueue_request_branch_name()
+
+    def action_check_all_file_diffs(self) -> None:
+        self.git.enqueue_request_all_file_diffs()
 
 
 class Moonbunny(App[None], inherit_bindings=False):
@@ -97,9 +107,12 @@ class Moonbunny(App[None], inherit_bindings=False):
                 self.home_screen.files_panel.set_files(lines)
             case GitRequestCurrentBranchName():
                 branch_name = result.stdout.decode("utf-8").strip()
-                self.home_screen.query_one(StatusBar).set_branch_name(branch_name)
+                self.home_screen.status_bar.set_branch_name(branch_name)
+            case GitRequestAllFileDiffs():
+                output = result.stdout.decode("utf-8")
+                self.home_screen.diff_panel.set_diff(output)
             case _:
-                pass
+                log.warning(f"Unknown git command: {result.command}")
 
     @work(exclusive=True, group="git-watcher")
     async def watch_git_files(self) -> None:

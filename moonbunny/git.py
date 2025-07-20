@@ -54,6 +54,14 @@ class GitTaskRunner:
         """Request the name of the current branch."""
         self.commands.put_nowait(GitRequestCurrentBranchName())
 
+    def enqueue_request_file_diff(self, file_path: str) -> None:
+        """Request the diff of a file."""
+        self.commands.put_nowait(GitRequestFileDiff(file_path))
+
+    def enqueue_request_all_file_diffs(self) -> None:
+        """Request the diff of all files in the repository."""
+        self.commands.put_nowait(GitRequestAllFileDiffs())
+
 
 class GitRequestFileStatus(GitCommand):
     def __init__(self) -> None:
@@ -63,3 +71,13 @@ class GitRequestFileStatus(GitCommand):
 class GitRequestCurrentBranchName(GitCommand):
     def __init__(self) -> None:
         super().__init__("rev-parse", ["--symbolic-full-name", "--abbrev-ref", "HEAD"])
+
+
+class GitRequestFileDiff(GitCommand):
+    def __init__(self, file_path: str) -> None:
+        super().__init__("diff", ["--", file_path])
+
+
+class GitRequestAllFileDiffs(GitCommand):
+    def __init__(self) -> None:
+        super().__init__("diff")
