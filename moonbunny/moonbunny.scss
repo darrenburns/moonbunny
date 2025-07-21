@@ -52,6 +52,7 @@ Home {
 
     #body {
         height: 1fr;
+        scrollbar-gutter: stable;
     }
 
     DiffPanel {
