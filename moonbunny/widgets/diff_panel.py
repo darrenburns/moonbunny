@@ -20,6 +20,8 @@ class DiffPanel(Static):
                 coloured_diff.append((line, "$text-success on $success-muted"))
             elif line.startswith("-"):
                 coloured_diff.append((line, "$text-error on $error-muted"))
+            elif line.startswith("@@"):
+                coloured_diff.append((line, "i $text-accent"))
             else:
                 coloured_diff.append((line, "$foreground"))
 
