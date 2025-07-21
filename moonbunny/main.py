@@ -12,10 +12,13 @@ from moonbunny.git import (
     GitRequestAllFileDiffs,
     GitRequestCurrentBranchName,
     GitRequestFileStatus,
+    GitRequestRecentBranches,
     GitTaskRunner,
+    format_relative_time,
 )
 from moonbunny.messages import GitCommand
 from moonbunny.settings import Settings
+from moonbunny.widgets.branches_panel import BranchesPanel
 from moonbunny.widgets.diff_panel import DiffPanel
 from moonbunny.widgets.files_panel import FilesPanel
 from moonbunny.widgets.status_bar import StatusBar
@@ -31,6 +34,7 @@ class Home(Screen[None]):
     files_panel = getters.query_one("#sidebar #files-panel", FilesPanel)
     status_bar = getters.child_by_id("status-bar", StatusBar)
     diff_panel = getters.child_by_id("diff-panel", DiffPanel)
+    branches_panel = getters.query_one("#sidebar #branches-panel", BranchesPanel)
 
     def __init__(self, git: GitTaskRunner, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -40,6 +44,7 @@ class Home(Screen[None]):
         yield StatusBar(id="status-bar")
         with Vertical(id="sidebar"):
             yield FilesPanel(id="files-panel")
+            yield BranchesPanel(id="branches-panel")
         yield DiffPanel(id="diff-panel")
         yield Footer(show_command_palette=False)
 
@@ -47,6 +52,7 @@ class Home(Screen[None]):
         self.git.enqueue_request_file_status()
         self.git.enqueue_request_branch_name()
         self.git.enqueue_request_all_file_diffs()
+        self.git.enqueue_recent_branches()
 
     def action_git_status(self) -> None:
         self.git.enqueue_request_file_status()
@@ -113,6 +119,19 @@ class Moonbunny(App[None], inherit_bindings=False):
             case GitRequestAllFileDiffs():
                 output = result.stdout.decode("utf-8")
                 self.home_screen.diff_panel.set_diff(output)
+            case GitRequestRecentBranches():
+                output = result.stdout.decode("utf-8")
+                lines = output.splitlines()
+                formatted_branches: list[str] = []
+                for line in lines:
+                    if "|" in line:
+                        time_part, branch_name = line.split("|", 1)
+                        formatted_time = format_relative_time(time_part.strip())
+                        formatted_branches.append(f"{formatted_time} {branch_name}")
+                    else:
+                        # Fallback for branches without time info
+                        formatted_branches.append(line)
+                self.home_screen.branches_panel.set_branches(formatted_branches)
             case _:
                 log.warning(f"Unknown git command: {result.command}")
 
@@ -120,6 +139,7 @@ class Moonbunny(App[None], inherit_bindings=False):
     async def watch_git_files(self) -> None:
         """Watching git files."""
 
+        # Lazy import because it's slow and delays startup a decent amount.
         from watchfiles import awatch  # type: ignore
 
         async for changes in awatch(Path.cwd()):  # type: ignore

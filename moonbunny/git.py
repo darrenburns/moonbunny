@@ -1,10 +1,47 @@
 import asyncio
 import shlex
+import re
 
 from textual import log
 from textual.app import App
 
 from moonbunny.messages import GitCommand, GitCommandResult
+
+
+def format_relative_time(relative_time: str) -> str:
+    """Format git's relative time into a concise format.
+
+    Examples:
+        "2 minutes ago" -> "2m"
+        "3 hours ago" -> "3h"
+        "1 day ago" -> "1d"
+        "2 weeks ago" -> "2w"
+        "1 month ago" -> "1mo"
+        "1 year ago" -> "1y"
+    """
+    # Handle "just now" case
+    if "second" in relative_time or relative_time.strip() == "":
+        return "now"
+
+    # Extract number and unit
+    match = re.search(r"(\d+)\s+(minute|hour|day|week|month|year)", relative_time)
+    if not match:
+        return relative_time  # Return original if no match
+
+    number, unit = match.groups()
+
+    # Map units to short forms
+    unit_map = {
+        "minute": "m",
+        "hour": "h",
+        "day": "d",
+        "week": "w",
+        "month": "mo",
+        "year": "y",
+    }
+
+    short_unit = unit_map.get(unit, unit)
+    return f"{number}{short_unit}"
 
 
 class GitTaskRunner:
@@ -19,6 +56,7 @@ class GitTaskRunner:
     async def _run_loop(self) -> None:
         while True:
             command = await self.commands.get()
+            print(command)
             stdout, stderr, returncode = await self._run_command(command)
 
             # Send the result back to the app.
@@ -62,6 +100,10 @@ class GitTaskRunner:
         """Request the diff of all files in the repository."""
         self.commands.put_nowait(GitRequestAllFileDiffs())
 
+    def enqueue_recent_branches(self) -> None:
+        """Request the recent branches."""
+        self.commands.put_nowait(GitRequestRecentBranches(requires_escape=False))
+
 
 class GitRequestFileStatus(GitCommand):
     def __init__(self) -> None:
@@ -81,3 +123,23 @@ class GitRequestFileDiff(GitCommand):
 class GitRequestAllFileDiffs(GitCommand):
     def __init__(self) -> None:
         super().__init__("diff")
+
+
+class GitRequestCommits(GitCommand):
+    def __init__(self, branch_name: str) -> None:
+        super().__init__("log", ["--oneline", branch_name])
+
+
+class GitRequestRecentBranches(GitCommand):
+    def __init__(self, requires_escape: bool = True) -> None:
+        super().__init__(
+            "branch",
+            [
+                "--list",
+                "--sort",
+                "-committerdate",
+                "--format",
+                "%(committerdate:relative)|%(refname:short)",
+            ],
+            requires_escape=requires_escape,
+        )

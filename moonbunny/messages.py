@@ -13,8 +13,16 @@ class GitCommand(Message):
 
     args: list[str] = field(default_factory=list)
 
+    requires_escape: bool = field(default=True)
+    """Whether the arguments need to be escaped.
+
+    If they contain anything from userland, they should be escaped.
+    (e.g. branch names, file paths, etc.)
+    """
+
     def __post_init__(self) -> None:
-        self.args = [shlex.quote(arg) for arg in self.args]
+        if self.requires_escape:
+            self.args = [shlex.quote(arg) for arg in self.args]
 
     @property
     def command(self) -> list[str]:

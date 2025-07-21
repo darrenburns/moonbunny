@@ -26,11 +26,18 @@ Home {
         }
     }
 
+    BranchesPanel {
+        border: round $border;
+        background: $surface;
+        height: 8;
+    }
+
     DiffPanel {
         background: $surface;
         width: 1fr;
         border-left: vkey $surface-lighten-1;
         min-height: 1fr;
+        text-wrap: nowrap;
     }
     
 }
