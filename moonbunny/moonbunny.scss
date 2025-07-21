@@ -2,6 +2,39 @@
     scrollbar-size-vertical: 1;
 }
 
+CommandPalette {
+    background: black 33%;
+    
+    & > Vertical {
+      margin-top: 2;
+      width: 65vw;
+      max-height: 65vh;
+    }
+    
+    & #--input {
+      border: none;
+      border-left: wide $accent;
+      
+      & CommandInput {
+        height: 3;
+        border: none;
+        padding: 1 2;
+      }
+      
+      & SearchIcon {
+        display: none;
+      }
+      
+    }
+    
+    & CommandList {
+      border: none;
+      border-left: wide $accent;
+      padding-bottom: 1;
+    }
+  
+  }
+
 StatusBar {
     color: $text-primary;
     background: $primary-muted;
@@ -17,21 +50,24 @@ StatusBar {
     width: 1fr;
 }
 
+.panel {
+    border-title-color: $text-primary;
+    background: $surface;
+    border: solid $primary-muted;
+    &:focus-within {
+        border: solid $primary;
+    }
+}
+
 Home {
     #sidebar {
-        width: 25%;
+        width: 30%;
         min-width: 16;
         height: 1fr;
         background: $surface-darken-1 35%;
     }
 
     FilesPanel {
-        border: solid $primary-muted;
-        &:focus-within {
-            border: solid $primary;
-        }
-        border-title-color: $text-primary;
-        background: $surface;
         height: 8;
         & #files-panel-option-list {
             height: 6;
@@ -43,14 +79,15 @@ Home {
     }
 
     BranchesPanel {
-        border: solid $primary-muted;
-        &:focus-within {
-            border: solid $primary;
-        }
-        border-title-color: $text-primary;
-        background: $surface;
         height: 8;
         & #branches-panel-option-list {
+            text-wrap: nowrap;
+            text-overflow: ellipsis;
+        }
+    }
+
+    CommitsPanel {
+        & #commits-panel-option-list {
             text-wrap: nowrap;
             text-overflow: ellipsis;
         }

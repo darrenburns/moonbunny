@@ -10,6 +10,7 @@ from textual.widgets import Footer, Label
 from moonbunny.git import (
     GitCommandResult,
     GitRequestAllFileDiffs,
+    GitRequestCommits,
     GitRequestCurrentBranchName,
     GitRequestFileStatus,
     GitRequestRecentBranches,
@@ -19,6 +20,7 @@ from moonbunny.git import (
 from moonbunny.messages import GitCommand
 from moonbunny.settings import Settings
 from moonbunny.widgets.branches_panel import BranchesPanel
+from moonbunny.widgets.commits_panel import CommitsPanel
 from moonbunny.widgets.diff_panel import DiffPanel
 from moonbunny.widgets.files_panel import FilesPanel
 from moonbunny.widgets.status_bar import StatusBar
@@ -36,6 +38,11 @@ class Home(Screen[None]):
             action="app.focus('branches-panel-option-list')",
             description="focus branches",
         ),
+        Binding(
+            key="c",
+            action="app.focus('commits-panel-option-list')",
+            description="focus commits",
+        ),
         Binding(key="d", action="app.focus('diff-panel')", description="focus diff"),
     ]
 
@@ -43,6 +50,7 @@ class Home(Screen[None]):
     status_bar = getters.child_by_id("status-bar", StatusBar)
     diff_panel = getters.query_one("#diff-panel", DiffPanel)
     branches_panel = getters.query_one("#sidebar #branches-panel", BranchesPanel)
+    commits_panel = getters.query_one("#sidebar #commits-panel", CommitsPanel)
 
     def __init__(self, git: GitTaskRunner, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -55,6 +63,7 @@ class Home(Screen[None]):
                 yield Label("moon[b]bunny 🐰 ", id="app-header")
                 yield FilesPanel(id="files-panel")
                 yield BranchesPanel(id="branches-panel")
+                yield CommitsPanel(id="commits-panel")
             with VerticalScroll(id="body", can_focus=False):
                 yield DiffPanel(id="diff-panel")
         yield Footer(show_command_palette=False)
@@ -64,6 +73,7 @@ class Home(Screen[None]):
         self.git.enqueue_request_branch_name()
         self.git.enqueue_request_all_file_diffs()
         self.git.enqueue_recent_branches()
+        self.git.enqueue_request_commits("HEAD")
 
     def action_git_status(self) -> None:
         self.git.enqueue_request_file_status()
@@ -146,6 +156,12 @@ class Moonbunny(App[None], inherit_bindings=False):
                         # Fallback for branches without time info
                         formatted_branches.append(line)
                 self.home_screen.branches_panel.set_branches(formatted_branches)
+            case GitRequestCommits():
+                output = result.stdout.decode("utf-8")
+                lines = output.splitlines()
+                # Filter out empty lines and set commits
+                commits = [line for line in lines if line.strip()]
+                self.home_screen.commits_panel.set_commits(commits)
             case _:
                 log.warning(f"Unknown git command: {result.command}")
 

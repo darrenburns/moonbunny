@@ -1,4 +1,3 @@
-from pathlib import Path
 from textual import getters
 from textual.app import ComposeResult
 from textual.containers import Vertical
@@ -6,18 +5,18 @@ from textual.widgets import OptionList
 from textual.widgets.option_list import Option
 
 
-class FilesPanel(Vertical):
-    """A panel for displaying files."""
+class CommitsPanel(Vertical):
+    """A panel for displaying commits."""
 
-    option_list = getters.child_by_id("files-panel-option-list", OptionList)
+    option_list = getters.child_by_id("commits-panel-option-list", OptionList)
 
     def compose(self) -> ComposeResult:
         self.add_class("panel")
-        self.border_title = "[u]F[/u]iles"
-        yield OptionList(id="files-panel-option-list", compact=True)
+        self.border_title = "[u]C[/u]ommits"
+        yield OptionList(id="commits-panel-option-list", compact=True)
 
-    def set_files(self, files: list[str]) -> None:
-        """Set the files to display."""
+    def set_commits(self, commits: list[str]) -> None:
+        """Set the commits to display."""
 
         # Check the currently highlighted option ID, so that if it's still present after
         # the list is updated, we can re-highlight it.
@@ -28,11 +27,23 @@ class FilesPanel(Vertical):
         else:
             previous_highlighted_option_id = option_list.options[highlighted_index].id
 
-        # Clear the list and add the new files.
+        # Clear the list and add the new commits.
         option_list.clear_options()
-        option_list.add_options(
-            [Option(Path(file).name, id=file) for file in files if file]
-        )
+
+        options: list[Option] = []
+        for commit in commits:
+            if commit.strip():  # Skip empty lines
+                # Parse commit format: "abc1234 Commit message"
+                parts = commit.split(" ", 1)
+                if len(parts) >= 2:
+                    commit_hash = parts[0]
+                    # Use full commit line as display text, hash as ID
+                    options.append(Option(commit, id=commit_hash))
+                else:
+                    # Fallback for malformed commits
+                    options.append(Option(commit, id=commit))
+
+        option_list.add_options(options)
 
         # Re-highlight the previously highlighted option, if it's still present.
         for index, option in enumerate(option_list.options):

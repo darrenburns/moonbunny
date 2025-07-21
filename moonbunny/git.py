@@ -111,6 +111,10 @@ class GitTaskRunner:
         """Request the recent branches."""
         self.commands.put_nowait(GitRequestRecentBranches(requires_escape=False))
 
+    def enqueue_request_commits(self, branch_name: str) -> None:
+        """Request the commits for a branch."""
+        self.commands.put_nowait(GitRequestCommits(branch_name))
+
 
 class GitRequestFileStatus(GitCommand):
     def __init__(self) -> None:
@@ -134,7 +138,7 @@ class GitRequestAllFileDiffs(GitCommand):
 
 class GitRequestCommits(GitCommand):
     def __init__(self, branch_name: str) -> None:
-        super().__init__("log", ["--oneline", branch_name])
+        super().__init__("log", ["--oneline", "-n", "200", branch_name])
 
 
 class GitRequestRecentBranches(GitCommand):
