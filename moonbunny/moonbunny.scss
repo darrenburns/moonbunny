@@ -22,7 +22,7 @@ Home {
         width: 25%;
         min-width: 16;
         height: 1fr;
-        background: $surface-darken-1 50%;
+        background: $surface-darken-1 35%;
     }
 
     FilesPanel {
@@ -64,7 +64,7 @@ Home {
     DiffPanel {
         background: $surface;
         width: 1fr;
-        border-left: vkey $surface-lighten-1;
+        border-left: vkey $surface-lighten-2;
         min-height: 1fr;
         text-wrap: nowrap;
     }

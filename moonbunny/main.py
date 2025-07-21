@@ -26,9 +26,17 @@ from moonbunny.widgets.status_bar import StatusBar
 
 class Home(Screen[None]):
     BINDINGS = [
-        Binding(key="s", action="git_status", description="status"),
-        Binding(key="b", action="check_branch", description="branch"),
-        Binding(key="d", action="check_all_file_diffs", description="diff all"),
+        Binding(
+            key="f",
+            action="app.focus('files-panel-option-list')",
+            description="focus files",
+        ),
+        Binding(
+            key="b",
+            action="app.focus('branches-panel-option-list')",
+            description="focus branches",
+        ),
+        Binding(key="d", action="app.focus('diff-panel')", description="focus diff"),
     ]
 
     files_panel = getters.query_one("#sidebar #files-panel", FilesPanel)
