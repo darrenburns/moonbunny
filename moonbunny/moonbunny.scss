@@ -5,20 +5,29 @@
 StatusBar {
     color: $text-primary;
     background: $primary-muted;
-    dock: top;
+    dock: bottom;
+    margin-bottom: 1;
     padding: 0 1;
+}
+
+#app-header {
+    text-align: center;
+    background: $primary-muted;
+    color: $text-primary;
+    width: 1fr;
 }
 
 Home {
     #sidebar {
-        margin-top: 1;
-        dock: left;
         width: 25%;
         min-width: 16;
+        height: 1fr;
+        background: $surface-darken-1 50%;
     }
 
     FilesPanel {
-        border: round $border;
+        border: solid $primary-muted;
+        border-title-color: $text-primary;
         background: $surface;
         height: 8;
         & #files-panel-option-list {
@@ -31,13 +40,18 @@ Home {
     }
 
     BranchesPanel {
-        border: round $border;
+        border: solid $primary-muted;
+        border-title-color: $text-primary;
         background: $surface;
         height: 8;
         & #branches-panel-option-list {
             text-wrap: nowrap;
             text-overflow: ellipsis;
         }
+    }
+
+    #body {
+        height: 1fr;
     }
 
     DiffPanel {

@@ -3,9 +3,9 @@ from typing import Any
 from textual import getters, on, log, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Vertical
+from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
-from textual.widgets import Footer
+from textual.widgets import Footer, Label
 
 from moonbunny.git import (
     GitCommandResult,
@@ -33,7 +33,7 @@ class Home(Screen[None]):
 
     files_panel = getters.query_one("#sidebar #files-panel", FilesPanel)
     status_bar = getters.child_by_id("status-bar", StatusBar)
-    diff_panel = getters.child_by_id("diff-panel", DiffPanel)
+    diff_panel = getters.query_one("#diff-panel", DiffPanel)
     branches_panel = getters.query_one("#sidebar #branches-panel", BranchesPanel)
 
     def __init__(self, git: GitTaskRunner, *args: Any, **kwargs: Any) -> None:
@@ -42,10 +42,13 @@ class Home(Screen[None]):
 
     def compose(self) -> ComposeResult:
         yield StatusBar(id="status-bar")
-        with Vertical(id="sidebar"):
-            yield FilesPanel(id="files-panel")
-            yield BranchesPanel(id="branches-panel")
-        yield DiffPanel(id="diff-panel")
+        with Horizontal():
+            with Vertical(id="sidebar"):
+                yield Label("🐰 moonbunny", id="app-header")
+                yield FilesPanel(id="files-panel")
+                yield BranchesPanel(id="branches-panel")
+            with VerticalScroll(id="body", can_focus=False):
+                yield DiffPanel(id="diff-panel")
         yield Footer(show_command_palette=False)
 
     def on_mount(self) -> None:
@@ -88,6 +91,7 @@ class Moonbunny(App[None], inherit_bindings=False):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         # Initialize settings first so we can pass git_dir to GitTaskRunner
+        self.theme = "dracula"
         self.settings = Settings()
         self.git = GitTaskRunner(self, git_dir=self.settings.git_dir)
 
