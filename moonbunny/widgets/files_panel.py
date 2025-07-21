@@ -12,7 +12,7 @@ class FilesPanel(Vertical):
     option_list = getters.child_by_id("files-panel-option-list", OptionList)
 
     def compose(self) -> ComposeResult:
-        self.border_title = "Files"
+        self.border_title = "[u]F[/u]iles"
         yield OptionList(id="files-panel-option-list", compact=True)
 
     def set_files(self, files: list[str]) -> None:

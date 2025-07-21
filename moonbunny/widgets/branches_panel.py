@@ -9,7 +9,7 @@ class BranchesPanel(Vertical):
     option_list = getters.child_by_id("branches-panel-option-list", OptionList)
 
     def compose(self) -> ComposeResult:
-        self.border_title = "Branches"
+        self.border_title = "[u]B[/u]ranches"
         yield OptionList(id="branches-panel-option-list", compact=True)
 
     def set_branches(self, branches: list[str]) -> None:
