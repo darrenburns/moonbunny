@@ -1,3 +1,7 @@
+* {
+    scrollbar-size-vertical: 1;
+}
+
 StatusBar {
     color: $text-primary;
     background: $primary-muted;
@@ -30,6 +34,10 @@ Home {
         border: round $border;
         background: $surface;
         height: 8;
+        & #branches-panel-option-list {
+            text-wrap: nowrap;
+            text-overflow: ellipsis;
+        }
     }
 
     DiffPanel {

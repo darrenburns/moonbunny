@@ -87,7 +87,9 @@ class Moonbunny(App[None], inherit_bindings=False):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self.git = GitTaskRunner(self)
+        # Initialize settings first so we can pass git_dir to GitTaskRunner
+        self.settings = Settings()
+        self.git = GitTaskRunner(self, git_dir=self.settings.git_dir)
 
     async def on_ready(self) -> None:
         await self.git.start()
@@ -149,7 +151,6 @@ class Moonbunny(App[None], inherit_bindings=False):
 
 def main() -> None:
     app = Moonbunny()
-    app.settings = Settings()
     app.run()
 
 

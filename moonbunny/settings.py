@@ -10,3 +10,7 @@ class Settings(BaseSettings):
         env_ignore_empty=True,
         extra="allow",
     )
+
+    git_dir: str | None = None
+    """Optional git directory path. If set, git commands will run in this directory.
+    Set via MOONBUNNY_GIT_DIR environment variable."""

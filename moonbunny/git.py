@@ -45,8 +45,9 @@ def format_relative_time(relative_time: str) -> str:
 
 
 class GitTaskRunner:
-    def __init__(self, mb: App[None]):
+    def __init__(self, mb: App[None], git_dir: str | None = None):
         self.mb: App[None] = mb
+        self.git_dir = git_dir
         self.task: asyncio.Task[None] | None = None
         self.commands: asyncio.Queue[GitCommand] = asyncio.Queue()
 
@@ -74,7 +75,13 @@ class GitTaskRunner:
     async def _run_command(
         self, command: GitCommand
     ) -> tuple[bytes, bytes, int | None]:
-        run_command = shlex.join(command.command)
+        # Build the command, injecting -C option if git_dir is set
+        cmd_parts = command.command.copy()
+        if self.git_dir:
+            # Insert -C option after 'git' but before the command name
+            cmd_parts = ["git", "-C", self.git_dir] + cmd_parts[1:]
+
+        run_command = shlex.join(cmd_parts)
         log.debug(f"Running command: {run_command}")
         process = await asyncio.create_subprocess_shell(
             run_command,
