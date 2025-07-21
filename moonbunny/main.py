@@ -3,6 +3,7 @@ from typing import Any
 from textual import getters, on, log, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
+from textual.containers import Vertical
 from textual.screen import Screen
 from textual.widgets import Footer
 
@@ -27,7 +28,7 @@ class Home(Screen[None]):
         Binding(key="d", action="check_all_file_diffs", description="diff all"),
     ]
 
-    files_panel = getters.child_by_id("files-panel", FilesPanel)
+    files_panel = getters.query_one("#sidebar #files-panel", FilesPanel)
     status_bar = getters.child_by_id("status-bar", StatusBar)
     diff_panel = getters.child_by_id("diff-panel", DiffPanel)
 
@@ -37,7 +38,8 @@ class Home(Screen[None]):
 
     def compose(self) -> ComposeResult:
         yield StatusBar(id="status-bar")
-        yield FilesPanel(id="files-panel")
+        with Vertical(id="sidebar"):
+            yield FilesPanel(id="files-panel")
         yield DiffPanel(id="diff-panel")
         yield Footer(show_command_palette=False)
 

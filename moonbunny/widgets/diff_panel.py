@@ -3,6 +3,9 @@ from textual.content import Content
 from textual.widgets import Static
 
 
+# TODO: Stick file name to top as you scroll through the diff
+# TODO: Record y-offsets in the diff so we can jump to them when file
+#   is selected in files panel.
 class DiffPanel(Static):
     """A panel for displaying diffs."""
 

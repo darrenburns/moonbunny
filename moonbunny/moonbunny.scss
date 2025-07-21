@@ -1,18 +1,22 @@
 StatusBar {
-    background: $surface;
-    dock: bottom;
-    margin-bottom: 1;
+    color: $text-primary;
+    background: $primary-muted;
+    dock: top;
     padding: 0 1;
 }
 
 Home {
-    layout: horizontal;
+    #sidebar {
+        margin-top: 1;
+        dock: left;
+        width: 25%;
+        min-width: 16;
+    }
 
     FilesPanel {
+        border: round $border;
         background: $surface;
-        height: 1fr;
-        width: 16;
-        dock: left;
+        height: 8;
         & #files-panel-option-list {
             height: 6;
             background: $surface;
@@ -25,6 +29,8 @@ Home {
     DiffPanel {
         background: $surface;
         width: 1fr;
+        border-left: vkey $surface-lighten-1;
+        min-height: 1fr;
     }
     
 }

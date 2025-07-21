@@ -2,18 +2,17 @@ from pathlib import Path
 from textual import getters
 from textual.app import ComposeResult
 from textual.containers import Vertical
-from textual.widgets import Label, OptionList
+from textual.widgets import OptionList
 from textual.widgets.option_list import Option
 
 
 class FilesPanel(Vertical):
     """A panel for displaying files."""
 
-    label = getters.child_by_id("files-panel-label", Label)
     option_list = getters.child_by_id("files-panel-option-list", OptionList)
 
     def compose(self) -> ComposeResult:
-        yield Label("Files", id="files-panel-label")
+        self.border_title = "Files"
         yield OptionList(id="files-panel-option-list", compact=True)
 
     def set_files(self, files: list[str]) -> None:
