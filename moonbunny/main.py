@@ -44,7 +44,7 @@ class Home(Screen[None]):
         yield StatusBar(id="status-bar")
         with Horizontal():
             with Vertical(id="sidebar"):
-                yield Label("🐰 moonbunny", id="app-header")
+                yield Label("moon[b]bunny  🐰 ", id="app-header")
                 yield FilesPanel(id="files-panel")
                 yield BranchesPanel(id="branches-panel")
             with VerticalScroll(id="body", can_focus=False):
