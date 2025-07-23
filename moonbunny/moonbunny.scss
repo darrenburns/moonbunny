@@ -100,7 +100,15 @@ Home {
         }
     }
 
-    #body {
+    #body-header {
+        padding: 0 1;
+        width: 1fr;
+        background: $primary-muted 75%;
+        color: $text-primary;
+        border-left: vkey $primary 40%;
+    }
+
+    #body-panel-scroll {
         height: 1fr;
         scrollbar-gutter: stable;
     }

@@ -34,7 +34,7 @@ class BranchesPanel(Vertical):
                 branch_name = parts[1]
                 # Display the full format with time
                 display_text = Content.assemble(
-                    (parts[0], "$text-accent on $accent-muted 30%"),
+                    (f"{parts[0]:>3}", "$text-accent on $accent-muted 30%"),
                     " ",
                     branch_name,
                 )

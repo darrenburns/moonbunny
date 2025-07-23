@@ -64,8 +64,11 @@ class Home(Screen[None]):
                 yield FilesPanel(id="files-panel")
                 yield BranchesPanel(id="branches-panel")
                 yield CommitsPanel(id="commits-panel")
-            with VerticalScroll(id="body", can_focus=False):
-                yield DiffPanel(id="diff-panel")
+
+            with Vertical(id="body"):
+                yield Label("Diff", id="body-header")
+                with VerticalScroll(id="body-panel-scroll"):
+                    yield DiffPanel(id="diff-panel")
         yield Footer(show_command_palette=False)
 
     def on_mount(self) -> None:
