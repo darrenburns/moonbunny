@@ -30,6 +30,9 @@ class FilesPanel(Vertical):
 
         # Clear the list and add the new files.
         option_list.clear_options()
+        # The file isn't really enough for the ID. We'll need to pass in more than just strings
+        # here (e.g. we can have a file that is both staged and unstaged, so the file would appear
+        # twice in the list).
         option_list.add_options(
             [Option(Path(file).name, id=file) for file in files if file]
         )
