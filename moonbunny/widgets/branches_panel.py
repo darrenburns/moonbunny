@@ -12,7 +12,7 @@ class BranchesPanel(Vertical):
     def compose(self) -> ComposeResult:
         self.add_class("panel")
         self.border_title = "[u]B[/u]ranches"
-        yield OptionList(id="branches-panel-option-list", compact=True)
+        yield OptionList(id="branches-panel-option-list", markup=False, compact=True)
 
     def set_branches(self, branches: list[str]) -> None:
         option_list = self.option_list

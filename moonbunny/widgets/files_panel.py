@@ -14,7 +14,7 @@ class FilesPanel(Vertical):
     def compose(self) -> ComposeResult:
         self.add_class("panel")
         self.border_title = "[u]F[/u]iles"
-        yield OptionList(id="files-panel-option-list", compact=True)
+        yield OptionList(id="files-panel-option-list", markup=False, compact=True)
 
     def set_files(self, files: list[str]) -> None:
         """Set the files to display."""

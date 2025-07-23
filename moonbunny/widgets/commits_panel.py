@@ -37,7 +37,7 @@ class CommitsPanel(Vertical):
     def compose(self) -> ComposeResult:
         self.add_class("panel")
         self.border_title = "[u]C[/u]ommits"
-        yield OptionList(id="commits-panel-option-list", compact=True)
+        yield OptionList(id="commits-panel-option-list", markup=False, compact=True)
 
     def set_commits(self, commits: list[str]) -> None:
         """Set the commits to display."""
