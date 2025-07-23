@@ -1,5 +1,6 @@
 * {
     scrollbar-size-vertical: 1;
+    scrollbar-background: $surface;
 }
 
 CommandPalette {
@@ -36,11 +37,17 @@ CommandPalette {
   }
 
 StatusBar {
-    color: $text-primary;
-    background: $primary-muted;
+    color: $text-secondary;
+    background: $panel-darken-1 80%;
     dock: bottom;
     margin-bottom: 1;
     padding: 0 1;
+
+    #repo-and-branch {
+        width: auto;
+        dock: right;
+    }
+
 }
 
 #app-header {

@@ -97,7 +97,6 @@ class Moonbunny(App[None], inherit_bindings=False):
     update the UI accordingly.
     """
 
-    ALLOW_SELECT = False
     CSS_PATH = Path(__file__).parent / "moonbunny.scss"
     BINDINGS = [
         Binding(key="q", action="quit", description="Quit"),
@@ -158,9 +157,12 @@ class Moonbunny(App[None], inherit_bindings=False):
                 self.home_screen.branches_panel.set_branches(formatted_branches)
             case GitRequestCommits():
                 output = result.stdout.decode("utf-8")
+                log.debug(f"Git commits raw output: {repr(output)}")
                 lines = output.splitlines()
+                log.debug(f"Git commits lines: {lines}")
                 # Filter out empty lines and set commits
                 commits = [line for line in lines if line.strip()]
+                log.debug(f"Git commits filtered: {commits}")
                 self.home_screen.commits_panel.set_commits(commits)
             case _:
                 log.warning(f"Unknown git command: {result.command}")

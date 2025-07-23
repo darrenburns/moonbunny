@@ -138,7 +138,11 @@ class GitRequestAllFileDiffs(GitCommand):
 
 class GitRequestCommits(GitCommand):
     def __init__(self, branch_name: str) -> None:
-        super().__init__("log", ["--oneline", "-n", "200", branch_name])
+        super().__init__(
+            "log",
+            ["--pretty=format:%h|%aN|%s", "-n", "200", branch_name],
+            requires_escape=False,
+        )
 
 
 class GitRequestRecentBranches(GitCommand):

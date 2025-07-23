@@ -1,8 +1,32 @@
 from textual import getters
 from textual.app import ComposeResult
 from textual.containers import Vertical
+from textual.content import Content
 from textual.widgets import OptionList
 from textual.widgets.option_list import Option
+
+
+def _get_initials(author_name: str) -> str:
+    """Generate initials from author name. E.g., 'Darren Burns' -> 'DB'"""
+    words = author_name.strip().split()
+    initials = "".join(word[0].upper() for word in words if word)
+    return initials[:2]  # Limit to 2 characters max
+
+
+def _get_author_colour(author_name: str) -> str:
+    """Get a consistent colour for an author based on their name."""
+    colours = [
+        "$text-accent on $accent-muted 80%",
+        "$text-secondary on $secondary-muted 80%",
+        "$text-primary on $primary-muted 80%",
+        "$text-success on $success-muted 80%",
+        "$text-warning on $warning-muted 80%",
+        "$text-error on $error-muted 80%",
+    ]
+
+    # Consistently map names to colours.
+    author_hash = hash(author_name) % len(colours)
+    return colours[author_hash]
 
 
 class CommitsPanel(Vertical):
@@ -33,12 +57,26 @@ class CommitsPanel(Vertical):
         options: list[Option] = []
         for commit in commits:
             if commit.strip():  # Skip empty lines
-                # Parse commit format: "abc1234 Commit message"
-                parts = commit.split(" ", 1)
-                if len(parts) >= 2:
-                    commit_hash = parts[0]
-                    # Use full commit line as display text, hash as ID
-                    options.append(Option(commit, id=commit_hash))
+                # Parse commit format: "abc1234|Author Name|Commit message"
+                parts = commit.split("|")
+                if len(parts) >= 3:
+                    commit_hash, author_name, message = parts
+                    initials = _get_initials(author_name)
+                    author_colour = _get_author_colour(author_name)
+                    # Use styled content with hash, initials, and message
+                    options.append(
+                        Option(
+                            Content.assemble(
+                                (
+                                    f"{initials:>2}",
+                                    f"{author_colour}",
+                                ),
+                                " ",
+                                message,
+                            ),
+                            id=commit_hash,
+                        )
+                    )
                 else:
                     # Fallback for malformed commits
                     options.append(Option(commit, id=commit))

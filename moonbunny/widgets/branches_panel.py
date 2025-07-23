@@ -1,6 +1,7 @@
 from textual import getters
 from textual.app import ComposeResult
 from textual.containers import Vertical
+from textual.content import Content
 from textual.widgets import OptionList
 from textual.widgets.option_list import Option
 
@@ -32,7 +33,11 @@ class BranchesPanel(Vertical):
                 # Extract just the branch name for the ID
                 branch_name = parts[1]
                 # Display the full format with time
-                display_text = branch_entry
+                display_text = Content.assemble(
+                    (parts[0], "$text-accent on $accent-muted 30%"),
+                    " ",
+                    branch_name,
+                )
             else:
                 # Fallback: use the entire entry as both display and ID
                 branch_name = branch_entry
