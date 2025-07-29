@@ -79,6 +79,8 @@ Home {
         & #files-panel-option-list {
             height: 6;
             background: $surface;
+            text-wrap: nowrap;
+            text-overflow: ellipsis;
         }
         & #files-panel-label {
             text-style: bold;

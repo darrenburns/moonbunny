@@ -18,6 +18,7 @@ from moonbunny.git import (
     format_relative_time,
 )
 from moonbunny.messages import GitCommand
+from moonbunny.models import FileStatus
 from moonbunny.settings import Settings
 from moonbunny.widgets.branches_panel import BranchesPanel
 from moonbunny.widgets.commits_panel import CommitsPanel
@@ -129,16 +130,35 @@ class Moonbunny(App[None], inherit_bindings=False):
 
     @on(GitCommandResult)
     def handle_git_command_result(self, result: GitCommandResult) -> None:
-        log.debug(result)
         log.debug(result.command.command_name)
 
         # Depending on the original command, handle the result differently.
         match result.command:
             case GitRequestFileStatus():
                 output = result.stdout.decode("utf-8")
+                log.debug(output)
                 lines = output.splitlines()
-                lines = [line.split()[-1] for line in lines if line]
-                self.home_screen.files_panel.set_files(lines)
+                file_statuses: list[FileStatus] = []
+                for line in lines:
+                    if line.strip():
+                        parts = line.split(maxsplit=8)
+                        if len(parts) >= 9 and parts[0] == "1":
+                            # Porcelain v2 format: 1 <XY> <sub> <mH> <mI> <mW> <hH> <hI> <path>
+                            xy_status = parts[1]
+                            path = Path(parts[8])
+                            staged = xy_status[0] != "."  # X position - staged status
+                            unstaged = (
+                                xy_status[1] != "."
+                            )  # Y position - unstaged status
+                            status_char = xy_status
+                            file_statuses.append(
+                                FileStatus(path, staged, unstaged, status_char)
+                            )
+                        elif line.startswith("?"):
+                            # Untracked files: ? <path>
+                            path = Path(line[2:])  # Remove "? " prefix
+                            file_statuses.append(FileStatus(path, False, True, "?"))
+                self.home_screen.files_panel.set_files(file_statuses)
             case GitRequestCurrentBranchName():
                 branch_name = result.stdout.decode("utf-8").strip()
                 self.home_screen.status_bar.set_branch_name(branch_name)
@@ -160,12 +180,9 @@ class Moonbunny(App[None], inherit_bindings=False):
                 self.home_screen.branches_panel.set_branches(formatted_branches)
             case GitRequestCommits():
                 output = result.stdout.decode("utf-8")
-                log.debug(f"Git commits raw output: {repr(output)}")
                 lines = output.splitlines()
-                log.debug(f"Git commits lines: {lines}")
                 # Filter out empty lines and set commits
                 commits = [line for line in lines if line.strip()]
-                log.debug(f"Git commits filtered: {commits}")
                 self.home_screen.commits_panel.set_commits(commits)
             case _:
                 log.warning(f"Unknown git command: {result.command}")
