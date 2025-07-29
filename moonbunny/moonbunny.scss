@@ -75,9 +75,8 @@ Home {
     }
 
     FilesPanel {
-        height: 8;
+        height: 1fr;
         & #files-panel-option-list {
-            height: 6;
             background: $surface;
             text-wrap: nowrap;
             text-overflow: ellipsis;
@@ -85,13 +84,19 @@ Home {
         & #files-panel-label {
             text-style: bold;
         }
+        &:focus-within {
+            height: 2fr;
+        }
     }
 
     BranchesPanel {
-        height: 8;
+        height: 1fr;
         & #branches-panel-option-list {
             text-wrap: nowrap;
             text-overflow: ellipsis;
+        }
+        &:focus-within {
+            height: 2fr;
         }
     }
 
@@ -99,6 +104,9 @@ Home {
         & #commits-panel-option-list {
             text-wrap: nowrap;
             text-overflow: ellipsis;
+        }
+        &:focus-within {
+            height: 2fr;
         }
     }
 

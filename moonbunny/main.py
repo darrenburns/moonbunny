@@ -44,7 +44,6 @@ class Home(Screen[None]):
             action="app.focus('commits-panel-option-list')",
             description="focus commits",
         ),
-        Binding(key="d", action="app.focus('diff-panel')", description="focus diff"),
     ]
 
     files_panel = getters.query_one("#sidebar #files-panel", FilesPanel)
@@ -105,6 +104,7 @@ class Moonbunny(App[None], inherit_bindings=False):
     BINDINGS = [
         Binding(key="q", action="quit", description="Quit"),
     ]
+    ALLOW_SELECT = False
 
     settings: Settings
     git: GitTaskRunner
